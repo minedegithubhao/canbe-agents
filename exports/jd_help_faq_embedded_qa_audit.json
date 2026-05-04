@@ -1,0 +1,167 @@
+{
+  "suspect_count": 12,
+  "covered_compound_qa_count": 12,
+  "uncovered_count": 0,
+  "uncovered": [],
+  "items": [
+    {
+      "id": "jd_help_328_4297",
+      "line": 4565,
+      "url": "https://help.jd.com/user/issue/328-4297.html",
+      "question": "【装饰】“材质保障”保险服务（第三方）",
+      "q_markers": 0,
+      "extracted_qas": 3,
+      "doc_type": "compound_qa",
+      "embedded_qa_count": 3,
+      "quality_flags": [
+        "compound_qa_source"
+      ]
+    },
+    {
+      "id": "jd_help_357_1112",
+      "line": 11741,
+      "url": "https://help.jd.com/user/issue/357-1112.html",
+      "question": "京东国际跨境进口介绍",
+      "q_markers": 0,
+      "extracted_qas": 3,
+      "doc_type": "compound_qa",
+      "embedded_qa_count": 3,
+      "quality_flags": [
+        "compound_qa_source",
+        "missing_image_context"
+      ]
+    },
+    {
+      "id": "jd_help_953_3950",
+      "line": 15374,
+      "url": "https://help.jd.com/user/issue/953-3950.html",
+      "question": "全球售业务购买问题",
+      "q_markers": 1,
+      "extracted_qas": 2,
+      "doc_type": "compound_qa",
+      "embedded_qa_count": 2,
+      "quality_flags": [
+        "compound_qa_source"
+      ]
+    },
+    {
+      "id": "jd_help_953_3951",
+      "line": 15386,
+      "url": "https://help.jd.com/user/issue/953-3951.html",
+      "question": "全球售业务支付问题",
+      "q_markers": 0,
+      "extracted_qas": 4,
+      "doc_type": "compound_qa",
+      "embedded_qa_count": 4,
+      "quality_flags": [
+        "compound_qa_source"
+      ]
+    },
+    {
+      "id": "jd_help_953_3952",
+      "line": 15416,
+      "url": "https://help.jd.com/user/issue/953-3952.html",
+      "question": "全球售业务物流问题",
+      "q_markers": 1,
+      "extracted_qas": 2,
+      "doc_type": "compound_qa",
+      "embedded_qa_count": 2,
+      "quality_flags": [
+        "compound_qa_source"
+      ]
+    },
+    {
+      "id": "jd_help_962_4358",
+      "line": 15750,
+      "url": "https://help.jd.com/user/issue/962-4358.html",
+      "question": "免费安装服务说明",
+      "q_markers": 0,
+      "extracted_qas": 3,
+      "doc_type": "compound_qa",
+      "embedded_qa_count": 3,
+      "quality_flags": [
+        "compound_qa_source"
+      ]
+    },
+    {
+      "id": "jd_help_34_4546",
+      "line": 18990,
+      "url": "https://help.jd.com/user/issue/34-4546.html",
+      "question": "“送礼”使用规则",
+      "q_markers": 1,
+      "extracted_qas": 9,
+      "doc_type": "compound_qa",
+      "embedded_qa_count": 9,
+      "quality_flags": [
+        "compound_qa_source"
+      ]
+    },
+    {
+      "id": "jd_help_411_4502",
+      "line": 19300,
+      "url": "https://help.jd.com/user/issue/411-4502.html",
+      "question": "安全提醒：防范网络诈骗",
+      "q_markers": 0,
+      "extracted_qas": 2,
+      "doc_type": "compound_qa",
+      "embedded_qa_count": 2,
+      "quality_flags": [
+        "compound_qa_source"
+      ]
+    },
+    {
+      "id": "jd_help_973_4253",
+      "line": 27086,
+      "url": "https://help.jd.com/user/issue/973-4253.html",
+      "question": "京东企业购企业微信端应用说明",
+      "q_markers": 0,
+      "extracted_qas": 7,
+      "doc_type": "compound_qa",
+      "embedded_qa_count": 7,
+      "quality_flags": [
+        "compound_qa_source",
+        "numbered_qa_source"
+      ]
+    },
+    {
+      "id": "jd_help_977_4255",
+      "line": 27316,
+      "url": "https://help.jd.com/user/issue/977-4255.html",
+      "question": "企享值介绍",
+      "q_markers": 0,
+      "extracted_qas": 3,
+      "doc_type": "compound_qa",
+      "embedded_qa_count": 3,
+      "quality_flags": [
+        "compound_qa_source"
+      ]
+    },
+    {
+      "id": "jd_help_979_4261",
+      "line": 28564,
+      "url": "https://help.jd.com/user/issue/979-4261.html",
+      "question": "企业购赠品说明",
+      "q_markers": 4,
+      "extracted_qas": 4,
+      "doc_type": "compound_qa",
+      "embedded_qa_count": 4,
+      "quality_flags": [
+        "compound_qa_source"
+      ]
+    },
+    {
+      "id": "jd_help_981_4264",
+      "line": 28650,
+      "url": "https://help.jd.com/user/issue/981-4264.html",
+      "question": "企业金采（免息账期）相关说明",
+      "q_markers": 0,
+      "extracted_qas": 20,
+      "doc_type": "compound_qa",
+      "embedded_qa_count": 20,
+      "quality_flags": [
+        "compound_qa_source",
+        "table_candidate"
+      ]
+    }
+  ]
+}

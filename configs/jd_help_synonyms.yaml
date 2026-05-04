@@ -1,0 +1,65 @@
+支付:
+  canonical: 支付
+  aliases:
+    - 付款
+    - 付钱
+    - 结算
+    - 收银台
+    - 网银
+    - 网银支付
+
+退换货:
+  canonical: 退换货
+  aliases:
+    - 退货
+    - 换货
+    - 售后
+    - 返修
+
+企业微信:
+  canonical: 企业微信
+  aliases:
+    - 企微
+    - 企业微信端
+
+京东企业购:
+  canonical: 京东企业购
+  aliases:
+    - 企业购
+    - 企业采购
+    - 企业会员
+
+京东白条:
+  canonical: 京东白条
+  aliases:
+    - 白条
+    - 打白条
+
+发票:
+  canonical: 发票
+  aliases:
+    - 开票
+    - 票据
+    - 数电票
+    - 电子发票
+
+价格保护:
+  canonical: 价格保护
+  aliases:
+    - 价保
+    - 补差价
+    - 买贵了
+
+运费:
+  canonical: 运费
+  aliases:
+    - 邮费
+    - 配送费
+    - 续重费
+    - 逆向运费
+
+京东E卡:
+  canonical: 京东E卡
+  aliases:
+    - E卡
+    - 京东卡

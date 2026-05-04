@@ -1,0 +1,409 @@
+{
+  "source": "https://help.jd.com/user/issue.html",
+  "output": "exports\\jd_help_faq.md",
+  "faqCount": 853,
+  "discoveredDetailUrls": 873,
+  "seenListPages": 286,
+  "emptyCategories": [
+    {
+      "list_url": "https://help.jd.com/user/issue/list-139.html",
+      "category_l1": "特色服务",
+      "category_l2": "售后到家",
+      "category_l3": "全部",
+      "faq_count": 0,
+      "child_list_count": 2,
+      "type": "category_only"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-140.html",
+      "category_l1": "特色服务",
+      "category_l2": "电器管家",
+      "category_l3": "全部",
+      "faq_count": 0,
+      "child_list_count": 1,
+      "type": "category_only"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-176.html",
+      "category_l1": "支付问题",
+      "category_l2": "分期付款",
+      "category_l3": "全部",
+      "faq_count": 0,
+      "child_list_count": 0,
+      "type": "empty_category"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-179.html",
+      "category_l1": "支付问题",
+      "category_l2": "扫码支付",
+      "category_l3": "全部",
+      "faq_count": 0,
+      "child_list_count": 3,
+      "type": "category_only"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-335.html",
+      "category_l1": "特色服务",
+      "category_l2": "礼品购",
+      "category_l3": "全部",
+      "faq_count": 0,
+      "child_list_count": 2,
+      "type": "category_only"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-467.html",
+      "category_l1": "特色服务",
+      "category_l2": "节能补贴",
+      "category_l3": "全部",
+      "faq_count": 0,
+      "child_list_count": 1,
+      "type": "category_only"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-52.html",
+      "category_l1": "订单百事通",
+      "category_l2": "订单锁定/解锁",
+      "category_l3": "全部",
+      "faq_count": 0,
+      "child_list_count": 1,
+      "type": "category_only"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-54.html",
+      "category_l1": "订单百事通",
+      "category_l2": "订单异常",
+      "category_l3": "全部",
+      "faq_count": 0,
+      "child_list_count": 1,
+      "type": "category_only"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-914.html",
+      "category_l1": "特色服务",
+      "category_l2": "分期用",
+      "category_l3": "全部",
+      "faq_count": 0,
+      "child_list_count": 2,
+      "type": "category_only"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-139-282.html",
+      "category_l1": "特色服务",
+      "category_l2": "售后到家",
+      "category_l3": "售后到家定义",
+      "faq_count": 0,
+      "child_list_count": 1,
+      "type": "category_only"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-139-283.html",
+      "category_l1": "特色服务",
+      "category_l2": "售后到家",
+      "category_l3": "售后到家注意事项",
+      "faq_count": 0,
+      "child_list_count": 1,
+      "type": "category_only"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-140-277.html",
+      "category_l1": "特色服务",
+      "category_l2": "电器管家",
+      "category_l3": "电器管家",
+      "faq_count": 0,
+      "child_list_count": 0,
+      "type": "empty_category"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-149-353.html",
+      "category_l1": "账户及会员",
+      "category_l2": "账户安全与账户信息",
+      "category_l3": "登录",
+      "faq_count": 0,
+      "child_list_count": 5,
+      "type": "category_only"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-149-448.html",
+      "category_l1": "账户及会员",
+      "category_l2": "账户安全与账户信息",
+      "category_l3": "数字证书",
+      "faq_count": 0,
+      "child_list_count": 5,
+      "type": "category_only"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-151-162.html",
+      "category_l1": "账户及会员",
+      "category_l2": "会员介绍",
+      "category_l3": "小白信用",
+      "faq_count": 0,
+      "child_list_count": 3,
+      "type": "category_only"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-172-196.html",
+      "category_l1": "支付问题",
+      "category_l2": "货到付款",
+      "category_l3": "货到付款注意事项",
+      "faq_count": 0,
+      "child_list_count": 2,
+      "type": "category_only"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-175-190.html",
+      "category_l1": "支付问题",
+      "category_l2": "公司转账",
+      "category_l3": "企业网银说明",
+      "faq_count": 0,
+      "child_list_count": 3,
+      "type": "category_only"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-179-202.html",
+      "category_l1": "支付问题",
+      "category_l2": "扫码支付",
+      "category_l3": "扫码支付说明",
+      "faq_count": 0,
+      "child_list_count": 2,
+      "type": "category_only"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-179-203.html",
+      "category_l1": "支付问题",
+      "category_l2": "扫码支付",
+      "category_l3": "扫码支付操作说明",
+      "faq_count": 0,
+      "child_list_count": 2,
+      "type": "category_only"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-179-314.html",
+      "category_l1": "支付问题",
+      "category_l2": "扫码支付",
+      "category_l3": "扫码支付常见问题",
+      "faq_count": 0,
+      "child_list_count": 2,
+      "type": "category_only"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-181-219.html",
+      "category_l1": "支付问题",
+      "category_l2": "异常情况",
+      "category_l3": "支付不成功",
+      "faq_count": 0,
+      "child_list_count": 6,
+      "type": "category_only"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-297-298.html",
+      "category_l1": "购物指南",
+      "category_l2": "生活旅行",
+      "category_l3": "机票",
+      "faq_count": 0,
+      "child_list_count": 7,
+      "type": "category_only"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-297-307.html",
+      "category_l1": "购物指南",
+      "category_l2": "生活旅行",
+      "category_l3": "航意险",
+      "faq_count": 0,
+      "child_list_count": 7,
+      "type": "category_only"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-297-428.html",
+      "category_l1": "购物指南",
+      "category_l2": "生活旅行",
+      "category_l3": "差旅",
+      "faq_count": 0,
+      "child_list_count": 7,
+      "type": "category_only"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-335-336.html",
+      "category_l1": "特色服务",
+      "category_l2": "礼品购",
+      "category_l3": "礼品购服务介绍",
+      "faq_count": 0,
+      "child_list_count": 1,
+      "type": "category_only"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-335-338.html",
+      "category_l1": "特色服务",
+      "category_l2": "礼品购",
+      "category_l3": "如何购买礼品购服务",
+      "faq_count": 0,
+      "child_list_count": 1,
+      "type": "category_only"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-429-480.html",
+      "category_l1": "售后服务",
+      "category_l2": "售后保障服务",
+      "category_l3": "退换无忧服务",
+      "faq_count": 0,
+      "child_list_count": 5,
+      "type": "category_only"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-429-483.html",
+      "category_l1": "售后服务",
+      "category_l2": "售后保障服务",
+      "category_l3": "30 180退换货险",
+      "faq_count": 0,
+      "child_list_count": 5,
+      "type": "category_only"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-450-457.html",
+      "category_l1": "订单百事通",
+      "category_l2": "第三方交易纠纷",
+      "category_l3": "服务态度",
+      "faq_count": 0,
+      "child_list_count": 10,
+      "type": "category_only"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-450-460.html",
+      "category_l1": "订单百事通",
+      "category_l2": "第三方交易纠纷",
+      "category_l3": "维修",
+      "faq_count": 0,
+      "child_list_count": 10,
+      "type": "category_only"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-467-468.html",
+      "category_l1": "特色服务",
+      "category_l2": "节能补贴",
+      "category_l3": "节能补贴",
+      "faq_count": 0,
+      "child_list_count": 0,
+      "type": "empty_category"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-47-56.html",
+      "category_l1": "订单百事通",
+      "category_l2": "自营和非自营",
+      "category_l3": "订单状态解释",
+      "faq_count": 0,
+      "child_list_count": 1,
+      "type": "category_only"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-52-65.html",
+      "category_l1": "订单百事通",
+      "category_l2": "订单锁定/解锁",
+      "category_l3": "订单解锁",
+      "faq_count": 0,
+      "child_list_count": 0,
+      "type": "empty_category"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-54-76.html",
+      "category_l1": "订单百事通",
+      "category_l2": "订单异常",
+      "category_l3": "订单异常常见问题",
+      "faq_count": 0,
+      "child_list_count": 0,
+      "type": "empty_category"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-80-87.html",
+      "category_l1": "配送方式",
+      "category_l2": "发货与签收",
+      "category_l3": "开箱验货",
+      "faq_count": 0,
+      "child_list_count": 3,
+      "type": "category_only"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-80-88.html",
+      "category_l1": "配送方式",
+      "category_l2": "发货与签收",
+      "category_l3": "签收确认",
+      "faq_count": 0,
+      "child_list_count": 3,
+      "type": "category_only"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-81-958.html",
+      "category_l1": "配送方式",
+      "category_l2": "京东配送服务说明",
+      "category_l3": "快递到车",
+      "faq_count": 0,
+      "child_list_count": 12,
+      "type": "category_only"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-81-97.html",
+      "category_l1": "配送方式",
+      "category_l2": "京东配送服务说明",
+      "category_l3": "定时达",
+      "faq_count": 0,
+      "child_list_count": 12,
+      "type": "category_only"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-84-107.html",
+      "category_l1": "配送方式",
+      "category_l2": "配送异常",
+      "category_l3": "配送员信息查询",
+      "faq_count": 0,
+      "child_list_count": 2,
+      "type": "category_only"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-84-264.html",
+      "category_l1": "配送方式",
+      "category_l2": "配送异常",
+      "category_l3": "发错货",
+      "faq_count": 0,
+      "child_list_count": 2,
+      "type": "category_only"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-892-910.html",
+      "category_l1": "账户及会员",
+      "category_l2": "PLUS会员",
+      "category_l3": "PLUS试用会员介绍",
+      "faq_count": 0,
+      "child_list_count": 2,
+      "type": "category_only"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-914-915.html",
+      "category_l1": "特色服务",
+      "category_l2": "分期用",
+      "category_l3": "分期用介绍",
+      "faq_count": 0,
+      "child_list_count": 1,
+      "type": "category_only"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-914-916.html",
+      "category_l1": "特色服务",
+      "category_l2": "分期用",
+      "category_l3": "分期用申请",
+      "faq_count": 0,
+      "child_list_count": 1,
+      "type": "category_only"
+    },
+    {
+      "list_url": "https://help.jd.com/user/issue/list-937-950.html",
+      "category_l1": "特色服务",
+      "category_l2": "京东服务+",
+      "category_l3": "京东服务E卡",
+      "faq_count": 0,
+      "child_list_count": 0,
+      "type": "empty_category"
+    }
+  ],
+  "emptyCategoryCount": 44,
+  "errors": [],
+  "errorCount": 0,
+  "elapsedSeconds": 277.83
+}

@@ -1,0 +1,38 @@
+{
+  "source": "exports\\jd_help_faq.md",
+  "source_entry_count": 853,
+  "clean_item_count": 935,
+  "chunk_count": 1182,
+  "search_enabled_count": 880,
+  "doc_type_counts": {
+    "fee_standard": 55,
+    "faq": 363,
+    "operation_guide": 227,
+    "service_intro": 116,
+    "policy_rule": 106,
+    "compound_qa": 12,
+    "historical_rule": 36,
+    "agreement": 20
+  },
+  "quality_flag_counts": {
+    "short_answer": 261,
+    "missing_image_context": 41,
+    "table_candidate": 7,
+    "compound_qa_source": 12,
+    "historical_content": 36,
+    "long_policy_text": 36,
+    "numbered_qa_source": 1
+  },
+  "removed_boilerplate_count": 1,
+  "removed_boilerplate_examples": [
+    {
+      "url": "https://help.jd.com/user/issue/57-127.html",
+      "question": "我的订单，为什么会被拆分？",
+      "text": "如有疑问，您可以联系客服为您解答。"
+    }
+  ],
+  "compound_qa_parent_count": 12,
+  "embedded_qa_count": 62,
+  "embedded_section_count": 20,
+  "expired_count": 43
+}

@@ -1,0 +1,1 @@
+"""FAQ RAG FastAPI service."""

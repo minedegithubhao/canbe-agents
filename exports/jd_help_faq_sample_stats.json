@@ -1,0 +1,10 @@
+{
+  "source": "https://help.jd.com/user/issue.html",
+  "output": "exports\\jd_help_faq_sample.md",
+  "faqCount": 9,
+  "discoveredDetailUrls": 873,
+  "seenListPages": 291,
+  "errors": [],
+  "errorCount": 0,
+  "elapsedSeconds": 119.78
+}

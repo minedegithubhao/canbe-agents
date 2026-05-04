@@ -1,0 +1,38 @@
+{
+  "startUrl": "https://help.jd.com/user/issue.html",
+  "method": "?????? /user/issue/*.html ?????????????????????",
+  "discoveredTotalIssueLinks": 1171,
+  "discoveredKinds": {
+    "list": 293,
+    "detail": 877,
+    "entry": 1
+  },
+  "discoveredFaqDetailPageLinks": 877,
+  "discoveredListPageLinks": 293,
+  "knownFetchedRawPagesBeforeThisRun": 120,
+  "newListPagesFetchedForStats": 208,
+  "errors": [],
+  "errorCount": 0,
+  "detailSamples": [
+    "https://help.jd.com/user/issue/100-177.html",
+    "https://help.jd.com/user/issue/100-178.html",
+    "https://help.jd.com/user/issue/100-181.html",
+    "https://help.jd.com/user/issue/100-251.html",
+    "https://help.jd.com/user/issue/100-965.html",
+    "https://help.jd.com/user/issue/102-250.html",
+    "https://help.jd.com/user/issue/103-983.html",
+    "https://help.jd.com/user/issue/104-137.html",
+    "https://help.jd.com/user/issue/104-209.html",
+    "https://help.jd.com/user/issue/104-252.html",
+    "https://help.jd.com/user/issue/104-253.html",
+    "https://help.jd.com/user/issue/104-383.html",
+    "https://help.jd.com/user/issue/106-4227.html",
+    "https://help.jd.com/user/issue/108-385.html",
+    "https://help.jd.com/user/issue/109-188.html",
+    "https://help.jd.com/user/issue/109-193.html",
+    "https://help.jd.com/user/issue/109-4012.html",
+    "https://help.jd.com/user/issue/109-4026.html",
+    "https://help.jd.com/user/issue/109-4539.html",
+    "https://help.jd.com/user/issue/109-4565.html"
+  ]
+}

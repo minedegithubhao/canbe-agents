@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Request
 
-from app.chat import save_feedback
-from app.schemas import ChatRequest, ChatResponse, FeedbackRequest, FeedbackResponse
+from app.schemas.chat import ChatRequest, ChatResponse, FeedbackRequest, FeedbackResponse
+from app.services.chat_service import save_feedback
 
 router = APIRouter(prefix="/faq", tags=["faq"])
 

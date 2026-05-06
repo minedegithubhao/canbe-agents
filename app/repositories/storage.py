@@ -13,6 +13,12 @@ def utc_now() -> datetime:
 
 
 class Mongo:
+    """MongoDB 访问层。
+
+    Mongo 保存 FAQ 主文档、检索 chunk、聊天日志和反馈日志。
+    其他模块只通过这里读写，避免业务代码散落 Mongo 查询细节。
+    """
+
     def __init__(self) -> None:
         self.settings = get_settings()
         self.client: Any | None = None
@@ -109,9 +115,19 @@ class Mongo:
             return {}
 
     async def get_faq_by_id(self, faq_id: str) -> dict[str, Any] | None:
+        """
+        根据ID异步获取FAQ条目。
+
+        参数:
+            faq_id (str): FAQ条目的唯一标识符。
+
+        返回:
+            dict[str, Any] | None: 如果找到则返回清理后的FAQ文档字典，否则返回None。
+        """
         if not self.available() or not faq_id:
             return None
         try:
+            # 根据FAQ ID从Mongo数据库中查询并获取单条FAQ记录
             doc = await self.db[self.collection("faq_items")].find_one({"id": faq_id})
             return clean_doc(doc) if doc else None
         except Exception as exc:
@@ -173,6 +189,12 @@ class Mongo:
 
 
 class RedisStore:
+    """Redis 状态存储。
+
+    当前主要用于导入/建索引任务状态和轻量缓存；即使 Redis 不可用，
+    任务仍可执行，只是前端无法通过状态接口持续查看进度。
+    """
+
     def __init__(self) -> None:
         self.settings = get_settings()
         self.client: Any | None = None
@@ -218,6 +240,11 @@ class RedisStore:
 
 
 class ElasticSearch:
+    """Elasticsearch 关键词检索适配器。
+
+    它负责精确词面匹配，弥补纯向量召回对数字、专有名词、短关键词不稳定的问题。
+    """
+
     def __init__(self) -> None:
         self.settings = get_settings()
         self.client: Any | None = None
@@ -316,6 +343,11 @@ class ElasticSearch:
         allow_historical: bool = False,
         prefer_agreement: bool = False,
     ) -> list[dict[str, Any]]:
+        """执行关键词召回。
+
+        allow_historical 会放宽 active/searchEnabled 过滤，用于历史规则类问题；
+        prefer_agreement 会给协议类文档额外 boost。
+        """
         if not self.available():
             return []
         filters: list[dict[str, Any]] = [{"term": {"enabled": True}}]
@@ -350,6 +382,12 @@ class ElasticSearch:
 
 
 class Milvus:
+    """Milvus 向量检索适配器。
+
+    同一个 collection 中保存 dense_vector 和 sparse_vector：
+    dense 用 COSINE 度量语义相似度，sparse 用 IP 度量稀疏词面匹配强度。
+    """
+
     def __init__(self) -> None:
         self.settings = get_settings()
         self.status = "not_initialized"
@@ -388,6 +426,11 @@ class Milvus:
         vectors: list[list[float]],
         sparse_vectors: list[dict[int, float]],
     ) -> int:
+        """把 chunk 的 dense/sparse 向量写入 Milvus。
+
+        chunk_id 和 faq_id 是回表关键字段：检索阶段先拿到向量命中，
+        再回 Mongo 补齐文本、来源、状态等完整元数据。
+        """
         if not self.available() or not chunks or not vectors:
             return 0
         collection = self._ensure_collection()
@@ -468,12 +511,28 @@ class Milvus:
 
 
 def clean_doc(doc: dict[str, Any]) -> dict[str, Any]:
+    """
+    清理文档数据，移除内部标识符字段。
+
+    该函数会创建输入字典的浅拷贝，并从中移除 '_id' 字段（如果存在），
+    以避免将数据库内部标识符泄露到外部接口或后续处理中。
+
+    Args:
+        doc (dict[str, Any]): 原始文档字典，可能包含 '_id' 字段。
+
+    Returns:
+        dict[str, Any]: 移除了 '_id' 字段后的文档副本。如果原字典中没有 '_id'，
+                        则返回包含所有原始键值对的副本。
+    """
+    # 创建字典的浅拷贝，避免修改原始输入数据
     doc = dict(doc)
+    # 安全地移除 '_id' 字段，若不存在则不执行任何操作
     doc.pop("_id", None)
     return doc
 
 
 def ensure_indexes(collection: Any) -> None:
+    """确保 Milvus collection 上存在 dense 和 sparse 两类索引。"""
     existing = {index.field_name for index in collection.indexes}
     if "dense_vector" not in existing:
         collection.create_index(

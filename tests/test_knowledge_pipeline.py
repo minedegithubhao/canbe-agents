@@ -1,8 +1,8 @@
 import json
 from pathlib import Path
 
-from app.chat import is_out_of_scope
-from app.ingest import IngestService
+from app.services.chat_service import is_out_of_scope
+from app.services.ingest_service import IngestService
 
 
 def test_cleaned_jsonl_mapping_preserves_faq_fields():

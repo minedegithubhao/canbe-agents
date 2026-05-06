@@ -1,8 +1,8 @@
 import json
 from pathlib import Path
 
-from app.ingest import IngestService
-from app.retrieval import QueryProcessor
+from app.services.ingest_service import IngestService
+from app.services.retrieval_service import QueryProcessor
 
 
 def test_query_processor_expands_nonstandard_enterprise_wechat_query():

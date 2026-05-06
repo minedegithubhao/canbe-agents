@@ -1,6 +1,7 @@
 import httpx
 
-from app.retrieval import Candidate, Embedder, Reranker
+from app.models.retrieval import Candidate
+from app.services.retrieval_service import Embedder, Reranker
 from app.settings import get_settings
 
 

@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from app.retrieval import Embedder, QueryProcessor
+from app.services.retrieval_service import Embedder, QueryProcessor
 from app.settings import get_settings
 
 
@@ -17,6 +17,13 @@ def utc_iso() -> str:
 
 
 class IngestService:
+    """知识导入与索引构建服务。
+
+    导入链路和问答链路是 RAG 的两条主干：
+    导入链路把清洗后的 FAQ 转成统一存储结构，并构建关键词/向量索引；
+    问答链路再基于这些索引召回证据。
+    """
+
     def __init__(self, mongo: Any, milvus: Any, es: Any, redis: Any, embedder: Embedder) -> None:
         self.settings = get_settings()
         self.mongo = mongo
@@ -31,6 +38,11 @@ class IngestService:
         cleaned_path: Path | None = None,
         chunks_path: Path | None = None,
     ) -> tuple[dict[str, int], dict[str, str]]:
+        """把离线清洗产物写入 Mongo。
+
+        FAQ item 是可展示的完整问答；chunk 是用于检索的片段。
+        这种拆分让召回粒度更细，同时回答阶段仍能回到完整 FAQ 元数据。
+        """
         await self.set_status("import", "running")
         faq_rows = load_jsonl(cleaned_path or self.settings.jd_help_cleaned_jsonl_path)
         chunk_rows = load_jsonl(chunks_path or self.settings.jd_help_chunks_jsonl_path)
@@ -79,6 +91,11 @@ class IngestService:
             await self.set_task(task_id, status="failed", stage="failed", error=f"{type(exc).__name__}: {exc}", finishedAt=utc_iso())
 
     async def build_index(self, task_id: str | None = None) -> tuple[dict[str, int], dict[str, str]]:
+        """为已导入 chunk 构建检索索引。
+
+        Elasticsearch 保存关键词索引；Milvus 同时保存 dense 和 sparse 向量。
+        三者对应 Retriever 中的 keyword、dense、sparse 三路召回。
+        """
         chunks = await self.mongo.list_enabled_chunks()
         if task_id:
             await self.set_task(task_id, stage="indexing_elasticsearch", totalChunks=len(chunks), progress=10)
@@ -98,6 +115,11 @@ class IngestService:
         )
 
     async def encode_dense(self, chunks: list[dict[str, Any]], task_id: str | None) -> list[list[float]]:
+        """批量生成 dense embedding。
+
+        embeddingText 优先于 indexText：前者通常更干净，适合语义向量；
+        后者包含更多检索增强词，适合关键词和稀疏检索。
+        """
         vectors: list[list[float]] = []
         for start in range(0, len(chunks), self.settings.bailian_embedding_batch_size):
             batch = chunks[start : start + self.settings.bailian_embedding_batch_size]
@@ -108,6 +130,7 @@ class IngestService:
         return vectors
 
     async def encode_sparse(self, chunks: list[dict[str, Any]], task_id: str | None) -> list[dict[int, float]]:
+        """批量生成 sparse 向量，保留 indexText 中的词面增强信息。"""
         vectors: list[dict[int, float]] = []
         for start in range(0, len(chunks), self.settings.bailian_embedding_batch_size):
             batch = chunks[start : start + self.settings.bailian_embedding_batch_size]
@@ -132,6 +155,11 @@ class IngestService:
             await self.redis.set_status(name, value)
 
     def faq_to_doc(self, row: dict[str, Any]) -> dict[str, Any]:
+        """把清洗后的 FAQ 行映射为 Mongo 中的主文档。
+
+        这里会补充同义词、分类、边界、优先级和质量标记。
+        后续 ChatService 返回来源时主要依赖这个文档。
+        """
         canonical_terms, synonym_terms = self.query_processor.terms_for_text(" ".join(str(row.get(key) or "") for key in ("category_path", "question", "answer_clean", "index_text")))
         answer = row.get("answer_clean") or row.get("answer_raw") or ""
         index_text = row.get("index_text") or " ".join(str(value or "") for value in [row.get("category_path"), row.get("question"), answer, f"source_url:{row.get('url') or ''}"] if value)
@@ -178,6 +206,11 @@ class IngestService:
         }
 
     def chunk_to_doc(self, row: dict[str, Any]) -> dict[str, Any]:
+        """把清洗后的 chunk 行映射为检索文档。
+
+        chunk 文档面向召回和重排：embeddingText 给 dense，indexText 给 keyword/sparse，
+        rerankText 则把问题、章节和片段整理成重排模型更容易判断的证据文本。
+        """
         canonical_terms, synonym_terms = self.query_processor.terms_for_text(" ".join(str(row.get(key) or "") for key in ("category_l1", "category_l2", "category_l3", "question", "chunk_text", "index_text")))
         category_path = " > ".join(item for item in [row.get("category_l1"), row.get("category_l2"), row.get("category_l3")] if item)
         chunk_text = row.get("chunk_text") or ""

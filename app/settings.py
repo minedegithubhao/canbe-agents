@@ -6,9 +6,17 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    """集中配置。
+
+    配置从 .env 读取，并用默认值保证本地开发时能启动。
+    命名上按外部依赖和检索参数分组：LLM、Mongo、Milvus、ES、Redis、百炼、retrieval。
+    """
+
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     app_name: str = "faq-rag-assistant"
+    # Mongo 集合名前缀，例如 canbe_faq_rag_faq_items、canbe_faq_rag_chat_logs；
+    # 用于让同一个 MongoDB database 中的不同项目数据彼此隔离。
     project_prefix: str = "canbe_faq_rag"
 
     jd_help_cleaned_jsonl_path: Path = Field(default=Path("exports/jd_help_faq.cleaned.jsonl"))
@@ -59,9 +67,11 @@ class Settings(BaseSettings):
 
     @property
     def bailian_effective_api_key(self) -> str:
+        """兼容两种环境变量命名：优先 BAILIAN_API_KEY，回退 DASHSCOPE_API_KEY。"""
         return self.bailian_api_key or self.dashscope_api_key
 
 
 @lru_cache
 def get_settings() -> Settings:
+    """缓存配置对象，避免每次请求重复解析 .env。"""
     return Settings()

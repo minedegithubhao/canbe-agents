@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Request
 
-from app.schemas import CategoryItem, HotQuestionItem
+from app.schemas.faq import CategoryItem, HotQuestionItem
 
 router = APIRouter(prefix="/faq", tags=["faq"])
 

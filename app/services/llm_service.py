@@ -16,6 +16,12 @@ SYSTEM_PROMPT = """你是京东帮助问答助手。
 
 
 class DeepSeek:
+    """生成模型适配器。
+
+    检索层负责找证据，DeepSeek 只负责把证据组织成自然语言答案。
+    如果模型未配置或调用失败，则退回抽取式答案，避免 API 故障直接中断问答。
+    """
+
     def __init__(self) -> None:
         self.settings = get_settings()
         self.status = "not_called"
@@ -24,6 +30,7 @@ class DeepSeek:
         return bool(self.settings.deepseek_api_key and self.settings.deepseek_base_url and self.settings.deepseek_model)
 
     async def generate(self, query: str, evidences: list[dict]) -> str:
+        """基于证据生成回答；没有可用模型时返回第一条证据中的答案。"""
         if not self.configured():
             self.status = "not_configured"
             return extractive_answer(evidences)
@@ -50,6 +57,11 @@ class DeepSeek:
 
 
 def build_prompt(query: str, docs: list[dict]) -> str:
+    """把候选 FAQ 证据压成模型 prompt。
+
+    prompt 中显式给出问题、答案、边界和来源，但系统提示要求模型不要把这些内部依据
+    原样说给用户。这是典型 RAG 的“证据可见、表达不可见”设计。
+    """
     evidence = []
     for index, doc in enumerate(docs, start=1):
         evidence.append(
@@ -79,6 +91,7 @@ def build_prompt(query: str, docs: list[dict]) -> str:
 
 
 def clean_answer(answer: str) -> str:
+    """清理模型回答开头的依据性套话，让输出更像直接客服回答。"""
     text = str(answer or "").strip()
     evidence_words = r"(?:FAQ内容|FAQ资料|FAQ文档|FAQ信息|FAQ|资料|材料|文档|内容|信息|事实)"
     patterns = (
@@ -96,6 +109,7 @@ def clean_answer(answer: str) -> str:
 
 
 def extractive_answer(evidences: list[dict]) -> str:
+    """最小降级策略：直接返回最高排序证据的 answer 字段。"""
     if not evidences:
         return "暂未找到相关答案。"
     answer = str(evidences[0].get("answer") or "").strip()

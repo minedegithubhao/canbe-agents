@@ -1,8 +1,8 @@
 import pytest
 
-from app.chat import ChatService, candidate_confidence, candidate_suggestions
-from app.llm import clean_answer
-from app.retrieval import Candidate
+from app.models.retrieval import Candidate
+from app.services.llm_service import clean_answer
+from app.services.chat_service import ChatService, candidate_confidence, candidate_suggestions
 
 
 def test_exact_standard_question_uses_raw_rerank_confidence_not_weighted_score():

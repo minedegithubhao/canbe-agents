@@ -15,6 +15,13 @@ from app.settings import get_settings
 
 @dataclass(frozen=True)
 class QueryPlan:
+    """一次检索的查询计划。
+
+    可以把它理解成“把用户原话翻译成检索系统更容易命中的多种表达”：
+    normalized_query 用于统一大小写和符号，expanded_query 加入同义词，
+    rewrite_queries 则是少量人工规则改写。
+    """
+
     raw_query: str
     normalized_query: str
     expanded_query: str
@@ -28,6 +35,12 @@ class QueryPlan:
 
 @dataclass
 class Candidate:
+    """跨召回通道统一后的候选 chunk。
+
+    dense/sparse/keyword 分数来自不同检索器，不能直接相加比较；
+    因此先用 RRF 做名次融合，再交给 reranker 重新按相关性排序。
+    """
+
     chunk_id: str
     faq_id: str
     score: float
@@ -48,6 +61,12 @@ class Candidate:
 
 
 class QueryProcessor:
+    """把自然语言问题加工为检索计划。
+
+    这里处理的是“查询理解”的轻量版本：同义词扩展、意图识别、历史规则偏好等。
+    它不是大模型改写器，优点是稳定、可测试、可解释。
+    """
+
     def __init__(self, path: Path | None = None) -> None:
         self.settings = get_settings()
         self.synonyms = load_synonyms(path or self.settings.jd_help_synonyms_path)
@@ -70,6 +89,8 @@ class QueryProcessor:
         canonical_terms, synonym_terms = self.terms_for_text(normalized)
         expanded = " ".join(unique([normalized, *canonical_terms, *synonym_terms])) if canonical_terms else normalized
         intent = query_intent(normalized)
+        # allow_historical / prefer_agreement 是检索侧的“开关型意图”：
+        # 前者允许历史或失效规则进入候选，后者提高协议/隐私政策文档权重。
         return QueryPlan(
             raw_query=query,
             normalized_query=normalized,
@@ -84,6 +105,12 @@ class QueryProcessor:
 
 
 class Embedder:
+    """向量化适配器。
+
+    dense 向量表达语义相似度，适合“说法不同但意思接近”的问题；
+    sparse 向量近似关键词稀疏表示，适合保留具体词面信号。
+    """
+
     def __init__(self) -> None:
         self.settings = get_settings()
         self.status = "bailian_configured" if self.settings.bailian_effective_api_key else "bailian_unconfigured"
@@ -130,6 +157,12 @@ class Embedder:
 
 
 class Reranker:
+    """候选重排器。
+
+    第一阶段召回追求“别漏掉”，第二阶段 rerank 追求“把最相关的放前面”。
+    百炼不可用时退化到字符重叠分，保证离线或依赖故障时接口仍可返回。
+    """
+
     def __init__(self) -> None:
         self.settings = get_settings()
         self.status = "bailian_configured" if self.settings.bailian_effective_api_key else "bailian_unconfigured"
@@ -177,6 +210,13 @@ class Reranker:
 
 
 class Retriever:
+    """混合检索主流程。
+
+    核心思想是“三路召回 + RRF 融合 + 交叉重排 + 业务去重”：
+    dense 召回语义相近，sparse 召回词面相关，keyword 召回精确关键词；
+    RRF 用排名而不是原始分数融合，降低不同检索器分数尺度不一致的问题。
+    """
+
     def __init__(self, mongo: Any, milvus: Any, es: Any, embedder: Embedder, reranker: Reranker) -> None:
         self.settings = get_settings()
         self.mongo = mongo
@@ -191,6 +231,8 @@ class Retriever:
         plan = self.query_processor.build_plan(query)
         dense_queries = unique([plan.normalized_query, *plan.rewrite_queries])
         keyword_queries = unique([plan.expanded_query, *plan.rewrite_queries])
+
+        # dense 召回：对原问题和少量改写问题分别向量化，覆盖“同义不同说法”。
         dense_lists: list[list[dict[str, Any]]] = []
         dense_hits = 0
         for dense_query in dense_queries:
@@ -198,8 +240,12 @@ class Retriever:
             hits = await self.milvus.dense_search(vector, self.settings.retrieval_dense_top_k)
             dense_hits += len(hits)
             dense_lists.append(hits)
+
+        # sparse 召回：用哈希后的稀疏 token 权重保留关键词和单字信号。
         sparse_vector = (await asyncio.to_thread(self.embedder.encode_sparse, [plan.expanded_query]))[0]
         sparse_hits = await self.milvus.sparse_search(sparse_vector, self.settings.retrieval_sparse_top_k)
+
+        # keyword 召回：交给 Elasticsearch 处理文本匹配，并按查询意图调整过滤条件。
         keyword_lists: list[list[dict[str, Any]]] = []
         keyword_hits = 0
         for keyword_query in keyword_queries:
@@ -212,9 +258,13 @@ class Retriever:
             keyword_hits += len(hits)
             keyword_lists.append(hits)
         degraded = False
+
+        # 全部外部检索都没命中时，退化为 Mongo 本地文本扫描。
+        # 这不是高质量检索路径，只是为了在 ES/Milvus 无数据或不可用时保留基本可用性。
         if not any(dense_lists) and not sparse_hits and not any(keyword_lists):
             degraded = True
             keyword_lists = [await self.local_chunk_search(plan.expanded_query, self.settings.retrieval_keyword_top_k)]
+
         candidates = rrf([*dense_lists, sparse_hits, *keyword_lists], self.settings.retrieval_rrf_k)
         candidates = candidates[: max(final_top_k * self.settings.retrieval_rerank_candidate_multiplier, 20)]
         await self.hydrate(candidates)
@@ -256,6 +306,7 @@ class Retriever:
 
 
 def normalize_query(text: str) -> str:
+    """统一查询文本，减少同一问题因全角、大小写、标点不同导致的召回差异。"""
     normalized = unicodedata.normalize("NFKC", text or "")
     chars: list[str] = []
     for char in normalized:
@@ -324,6 +375,11 @@ def rewrite_query(normalized: str, canonical_terms: list[str], synonym_terms: li
 
 
 def rrf(lists: list[list[dict]], k: int) -> list[Candidate]:
+    """Reciprocal Rank Fusion，按名次融合多个召回列表。
+
+    公式是：score(d) = Σ 1 / (k + rank_i(d))。
+    它的关键价值在于不依赖各检索器原始分数的同一量纲，只关心“排得靠不靠前”。
+    """
     by_chunk: dict[str, Candidate] = {}
     for ranked in lists:
         for rank, item in enumerate(ranked, start=1):
@@ -349,6 +405,7 @@ def rrf(lists: list[list[dict]], k: int) -> list[Candidate]:
 
 
 def allowed(candidate: Candidate, plan: QueryPlan) -> bool:
+    """过滤不可搜索或不应答的候选。"""
     faq = candidate.faq or {}
     chunk = candidate.chunk or {}
     doc_type = str(chunk.get("docType") or faq.get("docType") or "")
@@ -362,6 +419,11 @@ def allowed(candidate: Candidate, plan: QueryPlan) -> bool:
 
 
 def apply_doc_type_weights(candidates: list[Candidate], plan: QueryPlan) -> None:
+    """按文档类型和查询意图微调重排分。
+
+    例如操作类问题更偏向 operation_guide，费用类问题更偏向 fee_standard。
+    这一步是业务先验，不替代 reranker，只是在相关性接近时提供排序倾向。
+    """
     weights = {
         "operation_guide": 1.15,
         "fee_standard": 1.15,
@@ -389,6 +451,7 @@ def apply_doc_type_weights(candidates: list[Candidate], plan: QueryPlan) -> None
 
 
 def group_by_business(candidates: list[Candidate]) -> list[Candidate]:
+    """同一业务问题只保留最强候选，避免多个 chunk 占满结果列表。"""
     best: dict[str, Candidate] = {}
     for candidate in candidates:
         key = business_key(candidate)
@@ -408,6 +471,11 @@ def business_key(candidate: Candidate) -> str:
 
 
 def sparse_tokens(text: str) -> dict[int, float]:
+    """构造轻量稀疏向量。
+
+    英文/数字按词切分，中文按单字补充；token 哈希到固定桶中。
+    这不是完整 BM25，而是给 Milvus 稀疏检索提供一个可离线计算的词面特征。
+    """
     weights: dict[int, float] = {}
     normalized = "".join(char.lower() if char.isalnum() else " " for char in text)
     tokens = [word for word in normalized.split() if word]

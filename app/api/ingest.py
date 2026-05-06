@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Request
 
-from app.schemas import IngestResponse, IngestTaskResponse
+from app.schemas.ingest import IngestResponse, IngestTaskResponse
 
 router = APIRouter(prefix="/admin/ingest", tags=["ingest"])
 

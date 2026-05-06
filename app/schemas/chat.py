@@ -52,34 +52,3 @@ class FeedbackResponse(BaseModel):
     success: bool
     status: str = "ok"
     traceId: str
-
-
-class IngestResponse(BaseModel):
-    ok: bool
-    message: str
-    counts: dict[str, int] = Field(default_factory=dict)
-    status: dict[str, str] = Field(default_factory=dict)
-
-
-class IngestTaskResponse(BaseModel):
-    ok: bool
-    message: str
-    task: dict[str, Any] = Field(default_factory=dict)
-
-
-class HealthResponse(BaseModel):
-    status: str
-    dependencies: dict[str, str]
-
-
-class CategoryItem(BaseModel):
-    id: str
-    name: str
-    count: int = 0
-
-
-class HotQuestionItem(BaseModel):
-    id: str
-    question: str
-    category: str = "FAQ"
-    sourceUrl: str | None = None

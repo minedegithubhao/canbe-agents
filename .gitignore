@@ -2,8 +2,13 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 .env
+.venv-wsl/
 server.log
 server.err.log
+server.*.log
+server.*.out.log
+server.*.err.log
+wsl_ip.tmp
 .server.pid
 .import_task.pid
 .index_task.pid

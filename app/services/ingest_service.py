@@ -11,6 +11,8 @@ from typing import Any
 from app.services.retrieval_service import Embedder, QueryProcessor
 from app.settings import get_settings
 
+_USE_DEFAULT_CHUNKS = object()
+
 
 def utc_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -36,7 +38,7 @@ class IngestService:
     async def import_cleaned_knowledge(
         self,
         cleaned_path: Path | None = None,
-        chunks_path: Path | None = None,
+        chunks_path: Path | None | object = _USE_DEFAULT_CHUNKS,
     ) -> tuple[dict[str, int], dict[str, str]]:
         """把离线清洗产物写入 Mongo。
 
@@ -45,7 +47,10 @@ class IngestService:
         """
         await self.set_status("import", "running")
         faq_rows = load_jsonl(cleaned_path or self.settings.jd_help_cleaned_jsonl_path)
-        chunk_rows = load_jsonl(chunks_path or self.settings.jd_help_chunks_jsonl_path)
+        if chunks_path is _USE_DEFAULT_CHUNKS:
+            chunk_rows = load_jsonl(self.settings.jd_help_chunks_jsonl_path)
+        else:
+            chunk_rows = [] if chunks_path is None else load_jsonl(chunks_path)
         saved_faqs = await self.mongo.save_faq_items([self.faq_to_doc(row) for row in faq_rows])
         saved_chunks = await self.mongo.save_chunks([self.chunk_to_doc(row) for row in chunk_rows])
         await self.set_status("import", "completed")
@@ -244,6 +249,15 @@ class IngestService:
 
     _cleaned_faq_to_storage_dict = faq_to_doc
     _cleaned_chunk_to_storage_dict = chunk_to_doc
+
+    @staticmethod
+    def load_source_rows(
+        cleaned_path: Path,
+        chunks_path: Path | None,
+    ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+        faq_rows = load_jsonl(cleaned_path)
+        chunk_rows = [] if chunks_path is None else load_jsonl(chunks_path)
+        return faq_rows, chunk_rows
 
 
 def load_jsonl(path: Path) -> list[dict[str, Any]]:

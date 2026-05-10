@@ -289,6 +289,18 @@ class Retriever:
             "elasticsearchStatus": self.es.status,
         }
 
+    async def retrieve_for_runtime(
+        self,
+        query: str,
+        pipeline_snapshot: dict[str, Any] | None = None,
+        top_k: int | None = None,
+    ) -> tuple[list[Candidate], dict[str, Any]]:
+        candidates, diagnostics = await self.retrieve(query, top_k=top_k)
+        return candidates, {
+            **diagnostics,
+            "pipelineSnapshot": pipeline_snapshot or {},
+        }
+
     async def hydrate(self, candidates: list[Candidate]) -> None:
         chunks = {chunk["id"]: chunk for chunk in await self.mongo.get_chunks_by_ids([candidate.chunk_id for candidate in candidates])}
         faqs = await self.mongo.get_faqs_by_ids(list({candidate.faq_id for candidate in candidates}))

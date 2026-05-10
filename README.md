@@ -1,6 +1,6 @@
 # canbe_agents
 
-面向京东帮助中心公开 FAQ 的可控 RAG 问答后端。项目重点不是“让大模型什么都答”，而是把公开帮助文档加工成可检索、可追溯、可评测的知识资产，并在回答边界内稳定生成有来源的答案。
+面向京东帮助中心公开 FAQ 的可控 RAG 后端与实验底座。当前仓库的产品中心已经从单点 `/faq/chat` 问答，转向以 `Experiment` 为中心的 RAG Lab：重点不是“让大模型什么都答”，而是把公开帮助文档加工成可检索、可追溯、可评测、可复跑的知识资产，并用实验流程判断一次改造到底是收益、持平还是退化。
 
 ## 项目背景
 
@@ -60,6 +60,34 @@ score(d)=\sum_i \frac{1}{k + rank_i(d)}
 $$
 
 直观类比：不是问“不同裁判给的分数谁更高”，而是看“同一个候选在多个裁判那里是否都排得靠前”。
+
+## RAG Lab 产品中心
+
+如果把旧版 `/faq/chat` 看作“面向单个问题的一次推理”，那么 RAG Lab 更像“面向一次改造的一整套实验台”。两者的关系可以类比为：
+
+- `/faq/chat` 像显微镜：观察一条查询在当前链路下会得到什么答案。
+- `RAG Lab` 像风洞实验：固定数据集、固定策略版本、固定评测集，重复跑、对比跑、定位哪里变好或变坏。
+
+RAG Lab 的主闭环是：
+
+```text
+Dataset -> Pipeline -> Eval Set -> Experiment Run -> Comparison Verdict
+```
+
+其中：
+
+- `Dataset` 解决“用什么知识快照做实验”。
+- `Pipeline Version` 解决“用哪一套冻结配置跑实验”。
+- `Eval Set` 解决“拿什么题来测，题目希望系统表现成什么样”。
+- `Experiment Run` 解决“把一次配置真正跑完，并留下 case 级 trace 与 run 级 summary”。
+- `Comparison Verdict` 解决“这次改造究竟是 `beneficial`、`neutral` 还是 `harmful`”。
+
+一个容易忽略、但非常关键的对偶概念是：
+
+- `/faq/chat` 关注的是单次响应正确不正确。
+- `RAG Lab` 关注的是版本变化是否值得推进。
+
+前者更像在线服务面，后者更像离线控制面。实验台不是聊天页的附庸，而是当前仓库更高优先级的产品中心。
 
 ## 技术栈
 
@@ -150,12 +178,42 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 curl http://127.0.0.1:8000/health
 ```
 
+RAG Lab 控制面期望暴露以下路由族：
+
+- `GET /rag-lab/datasets`
+- `POST /rag-lab/datasets`
+- `POST /rag-lab/datasets/{dataset_id}/versions`
+- `GET /rag-lab/pipelines`
+- `GET /rag-lab/eval-sets`
+- `GET /rag-lab/runs`
+- `GET /rag-lab/comparisons`
+
+说明：
+
+- 这些接口是控制面，职责是编排 Dataset、Pipeline、Eval Set、Run、Comparison。
+- 旧的 `/faq/chat` 仍可作为检索与回答链路的回归面，但不再代表产品主中心。
+
 ### 4. 导入知识与构建索引
 
 项目默认读取：
 
 - `exports/jd_help_faq.cleaned.jsonl`
 - `exports/jd_help_faq.chunks.jsonl`
+
+如果要把这批现有 FAQ 资产迁移为 RAG Lab 的 starter dataset / eval set manifest，可运行：
+
+```bash
+python scripts/bootstrap_rag_lab_from_existing_assets.py
+```
+
+默认会扫描 `exports/` 下现有的 `*.cleaned.jsonl` 与 `*.chunks.jsonl`，打印迁移摘要，并把 starter manifests 写到 `exports/rag_lab_bootstrap/`。
+
+建议把迁移过程理解成两层：
+
+- 第一层是“资产迁移”：把旧 FAQ 清洗产物整理成可版本化的 starter dataset / eval set 清单。
+- 第二层是“实验迁移”：在 RAG Lab 中基于这些 starter manifests 创建 Dataset Version、补充 Eval Cases、冻结 Pipeline Version，再发起 Run 和 Comparison。
+
+这种拆层的好处在于，知识资产和实验策略不再绑死。换句话说，`Dataset Version` 回答“世界是什么”，`Pipeline Version` 回答“系统怎么看这个世界”。
 
 导入 FAQ 与 chunk：
 
@@ -183,12 +241,20 @@ curl -X POST http://127.0.0.1:8000/faq/chat ^
   -d "{\"query\":\"忘记密码怎么办？\",\"sessionId\":\"demo\"}"
 ```
 
+如需理解一次完整实验如何流经控制面、工作线程、artifact 与 comparison，可直接看文档 [rag_lab_execution_flow.md](/D:/IdeaProjects/canbe_agents/docs/architecture/rag_lab_execution_flow.md)。
+
 ## 测试方式
 
 运行不依赖在线 API 的单元与契约测试：
 
 ```bash
 $env:PYTHONPATH="."; pytest tests
+```
+
+单独验证 RAG Lab bootstrap 脚本测试：
+
+```bash
+$env:PYTHONPATH='.'; pytest tests/rag_lab/test_bootstrap_script.py -v
 ```
 
 当 FastAPI 服务已启动时，测试会自动执行黑盒 API 契约用例；未启动时，相关 API 用例会跳过：

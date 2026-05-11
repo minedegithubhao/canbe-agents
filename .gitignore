@@ -1,9 +1,62 @@
+# Python bytecode and caches
 __pycache__/
 *.py[cod]
+*$py.class
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.hypothesis/
+
+# Virtual environments
+.venv/
+.venv-*/
+venv/
+env/
+ENV/
+
+# Local environment files
 .env
-server.log
-server.err.log
+.env.*
+!.env.example
+
+# Runtime logs and pid files
+*.log
+*.err.log
+*.out.log
+*.pid
 .server.pid
 .import_task.pid
 .index_task.pid
+server.*.log
+server.*.pid
+wsl_ip.tmp
+
+# Test and coverage output
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+
+# Build and packaging output
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Local IDE/editor state
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Generated interview/project docs kept only when explicitly tracked
+docs/0[1-7]-*.md

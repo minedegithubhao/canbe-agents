@@ -7,7 +7,7 @@ from typing import Any
 import pytest
 
 
-DEFAULT_BASE_URL = "http://127.0.0.1:8000"
+DEFAULT_BASE_URL = "http://127.0.0.1:8801"
 ALLOWED_SOURCE_URL = "https://help.jd.com/user/issue.html"
 ALLOWED_SOURCE_URL_PREFIX = "https://help.jd.com/user/issue/"
 
@@ -17,7 +17,7 @@ def pytest_addoption(parser: pytest.Parser) -> None:
         "--api-base-url",
         action="store",
         default=os.getenv("FAQ_RAG_API_BASE_URL", DEFAULT_BASE_URL),
-        help="FAQ RAG API base URL, for example http://127.0.0.1:8000",
+        help="FAQ RAG API base URL, for example http://127.0.0.1:8801",
     )
 
 

@@ -7,13 +7,15 @@
 后端使用 Python FastAPI。服务默认地址：
 
 ```text
-http://127.0.0.1:8000
+http://127.0.0.1:8801
 ```
+
+端口约定：本项目在 Windows 本机开发时统一使用 `8801`。不要把 `9001` 配成 Agent Runtime；当前 Docker Compose 中 `9001` 是 MinIO Console，会返回 HTML 页面而不是 JSON API。若 `canbe_blog_server` 代理调用本项目，`blog_agent.runtime_url` 应配置为 `http://127.0.0.1:8801/faq/chat`。
 
 联调时可以通过环境变量覆盖：
 
 ```text
-FAQ_RAG_API_BASE_URL=http://127.0.0.1:8000
+FAQ_RAG_API_BASE_URL=http://127.0.0.1:8801
 ```
 
 中间件连接信息由 `.env` 提供。当前 WSL Docker 中已有 MongoDB、Milvus、Elasticsearch、Redis 等环境，开发时必须使用项目专属命名，避免影响其他人的库表或索引：
@@ -285,7 +287,7 @@ feedback 契约
 运行测试：
 
 ```bash
-pytest tests --api-base-url http://127.0.0.1:8000
+pytest tests --api-base-url http://127.0.0.1:8801
 ```
 
 如果服务尚未启动，测试会自动跳过需要 API 的用例。
@@ -295,19 +297,19 @@ pytest tests --api-base-url http://127.0.0.1:8000
 运行内置评测集：
 
 ```bash
-python scripts/evaluate_retrieval.py --base-url http://127.0.0.1:8000
+python scripts/evaluate_retrieval.py --base-url http://127.0.0.1:8801
 ```
 
 输出 JSON 文件：
 
 ```bash
-python scripts/evaluate_retrieval.py --base-url http://127.0.0.1:8000 --output reports/evaluation.json
+python scripts/evaluate_retrieval.py --base-url http://127.0.0.1:8801 --output reports/evaluation.json
 ```
 
 使用自定义 UTF-8 JSON 测试集：
 
 ```bash
-python scripts/evaluate_retrieval.py --base-url http://127.0.0.1:8000 --cases tests/cases.json
+python scripts/evaluate_retrieval.py --base-url http://127.0.0.1:8801 --cases tests/cases.json
 ```
 
 自定义用例格式：

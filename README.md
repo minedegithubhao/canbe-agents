@@ -141,13 +141,15 @@ DEEPSEEK_MODEL=deepseek-chat
 ### 3. 启动 API
 
 ```bash
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8801
 ```
+
+本机默认端口统一使用 `8801`。Windows 环境中 `7969-8568` 端口段可能被系统保留，`8000`、`8001`、`8010` 等端口容易出现 `WinError 10013`；`9001` 是当前 Docker 中 MinIO Console 端口，不能配置为 `canbe_blog_server.blog_agent.runtime_url`。
 
 健康检查：
 
 ```bash
-curl http://127.0.0.1:8000/health
+curl http://127.0.0.1:8801/health
 ```
 
 ### 4. 导入知识与构建索引
@@ -160,25 +162,25 @@ curl http://127.0.0.1:8000/health
 导入 FAQ 与 chunk：
 
 ```bash
-curl -X POST http://127.0.0.1:8000/admin/ingest/import
+curl -X POST http://127.0.0.1:8801/admin/ingest/import
 ```
 
 构建 Elasticsearch / Milvus 索引：
 
 ```bash
-curl -X POST http://127.0.0.1:8000/admin/ingest/build-index
+curl -X POST http://127.0.0.1:8801/admin/ingest/build-index
 ```
 
 查询异步任务：
 
 ```bash
-curl http://127.0.0.1:8000/admin/ingest/tasks/{taskId}
+curl http://127.0.0.1:8801/admin/ingest/tasks/{taskId}
 ```
 
 问答示例：
 
 ```bash
-curl -X POST http://127.0.0.1:8000/faq/chat ^
+curl -X POST http://127.0.0.1:8801/faq/chat ^
   -H "Content-Type: application/json" ^
   -d "{\"query\":\"忘记密码怎么办？\",\"sessionId\":\"demo\"}"
 ```
@@ -194,19 +196,19 @@ $env:PYTHONPATH="."; pytest tests
 当 FastAPI 服务已启动时，测试会自动执行黑盒 API 契约用例；未启动时，相关 API 用例会跳过：
 
 ```bash
-$env:PYTHONPATH="."; pytest tests --api-base-url http://127.0.0.1:8000
+$env:PYTHONPATH="."; pytest tests --api-base-url http://127.0.0.1:8801
 ```
 
 运行检索与问答评测脚本：
 
 ```bash
-python scripts/evaluate_retrieval.py --base-url http://127.0.0.1:8000
+python scripts/evaluate_retrieval.py --base-url http://127.0.0.1:8801
 ```
 
 写入评测报告：
 
 ```bash
-python scripts/evaluate_retrieval.py --base-url http://127.0.0.1:8000 --output reports/evaluation.json
+python scripts/evaluate_retrieval.py --base-url http://127.0.0.1:8801 --output reports/evaluation.json
 ```
 
 ## 评测结果

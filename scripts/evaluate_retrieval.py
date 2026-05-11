@@ -208,7 +208,7 @@ def summarize(results: list[CaseResult]) -> dict[str, Any]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Evaluate FAQ RAG API retrieval and fallback behavior.")
-    parser.add_argument("--base-url", default="http://127.0.0.1:8000", help="FastAPI base URL")
+    parser.add_argument("--base-url", default="http://127.0.0.1:8801", help="FastAPI base URL")
     parser.add_argument("--cases", help="Optional UTF-8 JSON case file")
     parser.add_argument("--output", help="Optional JSON output path")
     parser.add_argument("--timeout", type=int, default=45, help="Request timeout seconds")

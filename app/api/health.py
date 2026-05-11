@@ -29,7 +29,7 @@ def _normalize_status(value: str) -> str:
         return "ok"
     if value in {"not_initialized", "not_loaded", "not_configured", "unconfigured"}:
         return "unconfigured"
-    if value == "configured":
+    if value == "configured" or value.endswith("_configured"):
         return "ok"
     if value.startswith("unavailable") or value.startswith("fallback") or value in {"disabled", "unreachable"}:
         return "degraded"

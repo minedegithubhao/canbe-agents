@@ -248,6 +248,48 @@ Content-Type: application/json
 GET /admin/ingest/tasks/{taskId}
 ```
 
+### 生成可追溯评测集
+
+```http
+POST /admin/eval-sets/generate
+Content-Type: application/json
+```
+
+请求：
+
+```json
+{
+  "name": "jd_help_eval_v1",
+  "total_count": 20,
+  "seed": 20260512,
+  "source_path": "exports/jd_help_faq.cleaned.jsonl"
+}
+```
+
+生成结果会保存到 MongoDB：
+
+```text
+canbe_faq_rag_eval_sets
+canbe_faq_rag_eval_cases
+```
+
+查询评测集：
+
+```http
+GET /admin/eval-sets
+GET /admin/eval-sets/{eval_set_id}
+GET /admin/eval-sets/{eval_set_id}/cases?page=1&page_size=20
+POST /admin/eval-sets/{eval_set_id}/check-stale
+```
+
+导出为 `scripts/evaluate_retrieval.py` 兼容格式：
+
+```http
+GET /admin/eval-sets/{eval_set_id}/export
+```
+
+`check-stale` 会根据 case 中的 `source_faq_ids` 查当前 MongoDB FAQ 主数据，重新计算当前 `answer_clean` 指纹并与 `source_answer_hash` 对比；不一致的 case 会标记为 `stale`，不应进入默认评估。
+
 完成示例：
 
 ```json

@@ -5,6 +5,9 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app.api import chat, faq, health, ingest
+from app.evaluation import api as evaluation_api
+from app.evaluation.repository import EvalSetRepository
+from app.evaluation.service import EvaluationService
 from app.repositories.storage import ElasticSearch, Milvus, Mongo, RedisStore
 from app.services.chat_service import ChatService
 from app.services.ingest_service import IngestService
@@ -39,6 +42,9 @@ async def lifespan(app: FastAPI):
     app.state.retriever = Retriever(app.state.mongo, app.state.milvus, app.state.es, app.state.embedder, app.state.reranker)
     app.state.ingest_service = IngestService(app.state.mongo, app.state.milvus, app.state.es, app.state.redis, app.state.embedder)
     app.state.chat_service = ChatService(app.state.mongo, app.state.retriever, app.state.deepseek)
+    app.state.eval_repository = EvalSetRepository(app.state.mongo)
+    await app.state.eval_repository.ensure_indexes()
+    app.state.evaluation_service = EvaluationService(app.state.eval_repository)
     try:
         yield
     finally:
@@ -55,6 +61,7 @@ def create_app() -> FastAPI:
     app.include_router(chat.router)
     app.include_router(faq.router)
     app.include_router(ingest.router)
+    app.include_router(evaluation_api.router)
     return app
 
 

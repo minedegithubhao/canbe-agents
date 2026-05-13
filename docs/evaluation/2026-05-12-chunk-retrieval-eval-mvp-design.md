@@ -196,6 +196,7 @@ Eval set 只保存来源身份和生成元数据。
 
 ```json
 {
+  "_id": "eval_20260512_001",
   "eval_set_id": "eval_20260512_001",
   "name": "jd_help_eval_v1",
   "description": "基于 clean FAQ chunk 生成的检索评估集",
@@ -224,6 +225,14 @@ Eval set 只保存来源身份和生成元数据。
 | `created_at` | 排序和审计。 |
 | `created_by` | 审计字段，默认 `admin`。 |
 
+`_id` 规则：
+
+```text
+eval_sets._id = eval_set_id
+```
+
+原因：`eval_set_id` 是系统生成的稳定业务 ID，不需要修改。直接作为 Mongo `_id` 可以利用 Mongo 默认唯一索引，避免额外创建 `eval_set_id` 唯一索引。
+
 删除字段：
 
 - `status`
@@ -243,6 +252,7 @@ Eval case 以 chunk 为主。
 
 ```json
 {
+  "_id": "eval_20260512_001:faq_eval_000001",
   "case_id": "faq_eval_000001",
   "eval_set_id": "eval_20260512_001",
   "question": "下单后还能改规格吗？",
@@ -283,12 +293,21 @@ Eval case 以 chunk 为主。
 | `reference_contexts.source_url` | 来源追溯。 |
 | `created_at` | 审计字段。 |
 
+`_id` 规则：
+
+```text
+eval_cases._id = eval_set_id + ":" + case_id
+```
+
+原因：`case_id` 只要求在同一个 eval set 内唯一。拼接 `eval_set_id` 和 `case_id` 后，可以得到全局唯一 `_id`。
+
 ## 6. Eval Run 字段
 
-运行配置保存在 run 级别。
+运行配置和汇总结果保存在 run 级别。单条 case 运行结果不内嵌在 `eval_runs`，而是保存到独立的 `eval_run_results` collection。
 
 ```json
 {
+  "_id": "run_001",
   "run_id": "run_001",
   "eval_set_id": "eval_20260512_001",
   "rag_config": {
@@ -311,11 +330,25 @@ Eval case 以 chunk 为主。
 }
 ```
 
-Run result item：
+`_id` 规则：
+
+```text
+eval_runs._id = run_id
+```
+
+原因：`run_id` 是系统生成的稳定业务 ID，直接作为 Mongo `_id` 可以利用默认唯一索引，避免额外创建 `run_id` 唯一索引。
+
+## 7. Eval Run Result 字段
+
+每条 case 的运行结果单独保存，避免大量 case 时 `eval_runs` 单文档过大，也便于分页和失败复核。
 
 ```json
 {
+  "_id": "run_001:faq_eval_000001",
+  "run_id": "run_001",
+  "eval_set_id": "eval_20260512_001",
   "case_id": "faq_eval_000001",
+  "question": "下单后还能改规格吗？",
   "metrics": {
     "hit_at_k": 1,
     "context_recall_at_k": 1.0,
@@ -330,11 +363,127 @@ Run result item：
     "expected_chunk_ids": ["chunk_001"],
     "retrieved_chunk_ids": ["chunk_009", "chunk_001"],
     "matched_chunk_ids": ["chunk_001"]
-  }
+  },
+  "created_at": "2026-05-12T11:00:00+08:00"
 }
 ```
 
-## 7. 运行前 source hash 校验
+`_id` 规则：
+
+```text
+eval_run_results._id = run_id + ":" + case_id
+```
+
+原因：同一次 run 下，一个 case 只能有一条结果。拼接 `run_id` 和 `case_id` 后，可以得到全局唯一 `_id`。
+
+## 8. Mongo Collection 与索引
+
+MVP 使用 4 个 Mongo collection：
+
+```text
+1. eval_sets
+2. eval_cases
+3. eval_runs
+4. eval_run_results
+```
+
+### 8.1 eval_sets
+
+```js
+db.eval_sets.createIndex({ created_at: -1 })
+```
+
+原因：评估集列表需要按创建时间倒序展示。
+
+不需要额外创建 `{ eval_set_id: 1 }` 唯一索引，因为：
+
+```text
+eval_sets._id = eval_set_id
+```
+
+Mongo 默认已对 `_id` 建唯一索引。
+
+### 8.2 eval_cases
+
+```js
+db.eval_cases.createIndex(
+  { eval_set_id: 1, case_id: 1 },
+  { unique: true }
+)
+```
+
+原因：保证同一个评估集内 `case_id` 唯一，并支持快速查询某个评估集下的某条 case。
+
+```js
+db.eval_cases.createIndex({ eval_set_id: 1, eval_type: 1 })
+```
+
+原因：按评估类型筛选或统计 case，例如 `single_chunk`、`multi_chunk`。
+
+```js
+db.eval_cases.createIndex({ eval_set_id: 1, difficulty: 1 })
+```
+
+原因：按难度筛选或统计 case，例如 `easy`、`medium`、`hard`。
+
+```js
+db.eval_cases.createIndex({ eval_set_id: 1, question_style: 1 })
+```
+
+原因：按问题生成方式筛选或统计 case，例如 `original`、`colloquial`、`typo`、`alias`。
+
+```js
+db.eval_cases.createIndex({ eval_set_id: 1, category: 1 })
+```
+
+原因：按业务类别筛选或统计 case，例如订单、售后、会员等。
+
+### 8.3 eval_runs
+
+```js
+db.eval_runs.createIndex({ eval_set_id: 1, created_at: -1 })
+```
+
+原因：查询某个评估集的运行历史，并按创建时间倒序展示。
+
+不需要额外创建 `{ run_id: 1 }` 唯一索引，因为：
+
+```text
+eval_runs._id = run_id
+```
+
+Mongo 默认已对 `_id` 建唯一索引。
+
+### 8.4 eval_run_results
+
+```js
+db.eval_run_results.createIndex(
+  { run_id: 1, case_id: 1 },
+  { unique: true }
+)
+```
+
+原因：保证同一次 run 下，一个 case 只有一条结果，并支持快速查询某次 run 的某条 case 结果。
+
+```js
+db.eval_run_results.createIndex({ run_id: 1, "metrics.hit_at_k": 1 })
+```
+
+原因：快速筛选某次 run 中未命中的 case，例如 `metrics.hit_at_k = 0`。
+
+```js
+db.eval_run_results.createIndex({ run_id: 1, "metrics.context_recall_at_k": 1 })
+```
+
+原因：快速筛选召回不完整的 case，例如 `metrics.context_recall_at_k < 1`。
+
+```js
+db.eval_run_results.createIndex({ run_id: 1, "diagnostics.effective_k": 1 })
+```
+
+原因：快速筛选阈值过滤后上下文为空或过少的 case，例如 `diagnostics.effective_k = 0`，用于判断相似度阈值是否过严。
+
+## 9. 运行前 source hash 校验
 
 每次开始运行前：
 
@@ -348,7 +497,7 @@ Run result item：
 
 这个机制替代持久化 stale 字段。
 
-## 8. 实施计划
+## 10. 实施计划
 
 1. 用 chunk 级字段替换当前 eval case schema。
 2. 从 cleaned chunk 数据生成案例，而不是从 FAQ 级记录生成主指标。
@@ -360,7 +509,7 @@ Run result item：
 8. 更新前端文案和表格，展示 chunk 级指标。
 9. 增加单测：指标公式、effective_k 边界、source hash 不一致、run summary 平均值。
 
-## 9. MVP 不做的内容
+## 11. MVP 不做的内容
 
 MVP 明确不做：
 

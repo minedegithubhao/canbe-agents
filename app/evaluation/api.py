@@ -1,8 +1,12 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Query, Request
+import asyncio
 
-from app.evaluation.schemas import EvalSetGenerateRequest
+from fastapi import APIRouter, Query, Request
+from fastapi.responses import JSONResponse
+
+from app.evaluation.schemas import EvalRunConfig, EvalSetGenerateRequest
+from app.evaluation.service import EvalSourceChangedError
 
 router = APIRouter(prefix="/admin/eval-sets", tags=["evaluation"])
 
@@ -23,42 +27,48 @@ async def get_eval_set(request: Request, eval_set_id: str) -> dict:
     return {"ok": item is not None, "item": item}
 
 
+@router.delete("/{eval_set_id}")
+async def delete_eval_set(request: Request, eval_set_id: str) -> dict:
+    return await request.app.state.evaluation_service.delete_eval_set(eval_set_id)
+
+
 @router.get("/{eval_set_id}/cases")
 async def list_cases(
     request: Request,
     eval_set_id: str,
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=200),
-    validation_status: str | None = None,
-    category_l1: str | None = None,
+    category: str | None = None,
     eval_type: str | None = None,
     difficulty: str | None = None,
+    question_style: str | None = None,
 ) -> dict:
     items, total = await request.app.state.evaluation_service.list_cases(
         eval_set_id,
         page=page,
         page_size=page_size,
-        validation_status=validation_status,
-        category_l1=category_l1,
+        category=category,
         eval_type=eval_type,
         difficulty=difficulty,
+        question_style=question_style,
     )
     return {"items": items, "total": total, "page": page, "page_size": page_size}
 
 
-@router.get("/{eval_set_id}/export")
-async def export_eval_set(request: Request, eval_set_id: str) -> dict:
-    return {"items": await request.app.state.evaluation_service.export_for_evaluate_retrieval(eval_set_id)}
-
-
-@router.post("/{eval_set_id}/check-stale")
-async def check_stale_cases(request: Request, eval_set_id: str) -> dict:
-    return await request.app.state.evaluation_service.check_stale_cases(eval_set_id)
-
-
 @router.post("/{eval_set_id}/runs/start")
-async def start_eval_run(request: Request, eval_set_id: str) -> dict:
-    return await request.app.state.evaluation_service.start_eval_run(eval_set_id, request.app.state.chat_service)
+async def start_eval_run(request: Request, eval_set_id: str, payload: EvalRunConfig | None = None) -> dict:
+    try:
+        created = await request.app.state.evaluation_service.create_eval_run(eval_set_id, payload or EvalRunConfig())
+        asyncio.create_task(request.app.state.evaluation_service.complete_eval_run(created["run_id"]))
+        return created
+    except EvalSourceChangedError as exc:
+        return JSONResponse(
+            status_code=409,
+            content={
+                "code": "EVAL_SOURCE_CHANGED",
+                "message": "评估集数据源已变化，请重新生成评估集后再运行评估。",
+            },
+        )
 
 
 @router.get("/{eval_set_id}/runs")
@@ -66,13 +76,16 @@ async def list_eval_runs(request: Request, eval_set_id: str, limit: int = Query(
     return {"items": await request.app.state.evaluation_service.list_eval_runs(eval_set_id, limit=limit, skip=skip)}
 
 
-@router.get("/runs/{run_id}")
+run_router = APIRouter(prefix="/admin/eval-runs", tags=["evaluation"])
+
+
+@run_router.get("/{run_id}")
 async def get_eval_run(request: Request, run_id: str) -> dict:
     item = await request.app.state.evaluation_service.get_eval_run(run_id)
     return item or {"ok": False, "run_id": run_id}
 
 
-@router.get("/runs/{run_id}/results")
+@run_router.get("/{run_id}/results")
 async def list_eval_run_results(
     request: Request,
     run_id: str,

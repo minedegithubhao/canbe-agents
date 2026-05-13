@@ -44,7 +44,7 @@ async def lifespan(app: FastAPI):
     app.state.chat_service = ChatService(app.state.mongo, app.state.retriever, app.state.deepseek)
     app.state.eval_repository = EvalSetRepository(app.state.mongo)
     await app.state.eval_repository.ensure_indexes()
-    app.state.evaluation_service = EvaluationService(app.state.eval_repository)
+    app.state.evaluation_service = EvaluationService(app.state.eval_repository, retriever=app.state.retriever)
     try:
         yield
     finally:
@@ -62,6 +62,7 @@ def create_app() -> FastAPI:
     app.include_router(faq.router)
     app.include_router(ingest.router)
     app.include_router(evaluation_api.router)
+    app.include_router(evaluation_api.run_router)
     return app
 
 

@@ -2,6 +2,7 @@
   "name": "canbe_agents-dev-runner",
   "private": true,
   "scripts": {
-    "dev": "venv\\Scripts\\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8801 --env-file .env.dev --reload"
+    "dev": "venv\\Scripts\\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8811 --env-file .env.dev",
+    "dev:reload": "venv\\Scripts\\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8811 --env-file .env.dev --reload"
   }
 }

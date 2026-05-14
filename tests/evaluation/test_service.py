@@ -170,9 +170,11 @@ async def test_service_generates_and_saves_eval_set(tmp_path: Path):
     source_path = write_chunk_jsonl(tmp_path)
     service = EvaluationService(repository=FakeEvalRepository(), retriever=FakeRetriever())
 
-    response = await service.generate(EvalSetGenerateRequest(name="smoke", total_count=1, seed=11, source_path=str(source_path)))
+    response = await service.generate(EvalSetGenerateRequest(name="smoke", total_count=1, source_path=str(source_path)))
 
-    assert response == {"ok": True, "eval_set_id": "eval_11", "summary": {"total": 1}}
+    assert response["ok"] is True
+    assert response["eval_set_id"].startswith("eval_")
+    assert response["summary"] == {"total": 1}
     stored_cases, total = await service.list_cases(response["eval_set_id"])
     assert total == 1
     assert stored_cases[0]["expected_retrieved_chunk_ids"] == ["chunk_1"]
@@ -210,7 +212,7 @@ async def test_service_deletes_eval_set_with_related_runs_and_results(tmp_path: 
     source_path = write_chunk_jsonl(tmp_path)
     repository = FakeEvalRepository()
     service = EvaluationService(repository=repository, retriever=FakeRetriever())
-    generated = await service.generate(EvalSetGenerateRequest(name="smoke", total_count=1, seed=18, source_path=str(source_path)))
+    generated = await service.generate(EvalSetGenerateRequest(name="smoke", total_count=1, source_path=str(source_path)))
     run = await service.start_eval_run(generated["eval_set_id"], EvalRunConfig())
 
     response = await service.delete_eval_set(generated["eval_set_id"])
@@ -235,7 +237,7 @@ async def test_service_starts_eval_run_with_chunk_metrics(tmp_path: Path):
     source_path = write_chunk_jsonl(tmp_path)
     repository = FakeEvalRepository()
     service = EvaluationService(repository=repository, retriever=FakeRetriever())
-    generated = await service.generate(EvalSetGenerateRequest(name="smoke", total_count=1, seed=15, source_path=str(source_path)))
+    generated = await service.generate(EvalSetGenerateRequest(name="smoke", total_count=1, source_path=str(source_path)))
 
     run = await service.start_eval_run(generated["eval_set_id"], EvalRunConfig(configured_k=5, similarity_threshold=0.72))
 
@@ -259,7 +261,7 @@ async def test_service_creates_running_eval_run_before_background_completion(tmp
     source_path = write_chunk_jsonl(tmp_path)
     repository = FakeEvalRepository()
     service = EvaluationService(repository=repository, retriever=FakeRetriever())
-    generated = await service.generate(EvalSetGenerateRequest(name="smoke", total_count=1, seed=19, source_path=str(source_path)))
+    generated = await service.generate(EvalSetGenerateRequest(name="smoke", total_count=1, source_path=str(source_path)))
 
     created = await service.create_eval_run(generated["eval_set_id"], EvalRunConfig(configured_k=5, similarity_threshold=0.72))
 
@@ -293,7 +295,6 @@ async def test_service_completes_eval_run_with_controlled_concurrency(tmp_path: 
         EvalSetGenerateRequest(
             name="smoke",
             total_count=4,
-            seed=20,
             source_path=str(source_path),
             eval_type_distribution={"single_chunk": 1.0},
             question_style_distribution={"original": 1.0},
@@ -325,7 +326,6 @@ async def test_service_updates_progress_and_result_batches_during_background_run
         EvalSetGenerateRequest(
             name="progress",
             total_count=6,
-            seed=21,
             source_path=str(source_path),
             eval_type_distribution={"single_chunk": 1.0},
             question_style_distribution={"original": 1.0},
@@ -356,7 +356,6 @@ async def test_service_records_timing_summary(tmp_path: Path):
         EvalSetGenerateRequest(
             name="timing",
             total_count=3,
-            seed=22,
             source_path=str(source_path),
             eval_type_distribution={"single_chunk": 1.0},
             question_style_distribution={"original": 1.0},
@@ -389,7 +388,6 @@ async def test_service_run_overrides_apply_only_to_single_run(tmp_path: Path):
         EvalSetGenerateRequest(
             name="override",
             total_count=4,
-            seed=23,
             source_path=str(source_path),
             eval_type_distribution={"single_chunk": 1.0},
             question_style_distribution={"original": 1.0},
@@ -424,7 +422,7 @@ async def test_service_rejects_eval_run_when_source_hash_changed(tmp_path: Path)
     source_path = write_chunk_jsonl(tmp_path)
     repository = FakeEvalRepository()
     service = EvaluationService(repository=repository, retriever=FakeRetriever())
-    generated = await service.generate(EvalSetGenerateRequest(name="smoke", total_count=1, seed=16, source_path=str(source_path)))
+    generated = await service.generate(EvalSetGenerateRequest(name="smoke", total_count=1, source_path=str(source_path)))
     source_path.write_text(source_path.read_text(encoding="utf-8") + "\n", encoding="utf-8")
 
     with pytest.raises(EvalSourceChangedError):
@@ -436,7 +434,7 @@ async def test_service_records_zero_effective_k_failure(tmp_path: Path):
     source_path = write_chunk_jsonl(tmp_path)
     repository = FakeEvalRepository()
     service = EvaluationService(repository=repository, retriever=EmptyRetriever())
-    generated = await service.generate(EvalSetGenerateRequest(name="smoke", total_count=1, seed=17, source_path=str(source_path)))
+    generated = await service.generate(EvalSetGenerateRequest(name="smoke", total_count=1, source_path=str(source_path)))
 
     run = await service.start_eval_run(generated["eval_set_id"], EvalRunConfig())
     items, _ = await service.list_eval_run_results(run["run_id"], page=1, page_size=10)

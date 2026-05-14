@@ -261,7 +261,6 @@ Content-Type: application/json
 {
   "name": "jd_help_eval_v1",
   "total_count": 20,
-  "seed": 20260512,
   "source_path": "exports/jd_help_faq.cleaned.jsonl"
 }
 ```

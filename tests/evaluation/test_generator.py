@@ -25,7 +25,6 @@ def test_generator_creates_single_chunk_cases(tmp_path: Path):
     request = EvalSetGenerateRequest(
         name="smoke",
         total_count=1,
-        seed=7,
         source_path=str(source_path),
         eval_type_distribution={"single_chunk": 1.0},
         question_style_distribution={"original": 1.0},
@@ -34,7 +33,7 @@ def test_generator_creates_single_chunk_cases(tmp_path: Path):
 
     result = EvalCaseGenerator().generate(request)
 
-    assert result.eval_set_id == "eval_7"
+    assert result.eval_set_id.startswith("eval_")
     assert result.source_hash == source_file_hash(source_path)
     assert result.summary == {"total": 1}
     case = result.cases[0]
@@ -59,7 +58,6 @@ def test_generator_creates_multi_chunk_cases_from_same_category(tmp_path: Path):
     )
     request = EvalSetGenerateRequest(
         total_count=1,
-        seed=8,
         source_path=str(source_path),
         eval_type_distribution={"multi_chunk": 1.0},
         question_style_distribution={"colloquial": 1.0},
@@ -90,7 +88,6 @@ def test_generator_respects_category_distribution(tmp_path: Path):
     )
     request = EvalSetGenerateRequest(
         total_count=4,
-        seed=9,
         source_path=str(source_path),
         eval_type_distribution={"single_chunk": 1.0},
         question_style_distribution={"original": 1.0},
@@ -116,7 +113,6 @@ def test_generator_defaults_to_chunk_data_category_distribution(tmp_path: Path):
     )
     request = EvalSetGenerateRequest(
         total_count=4,
-        seed=10,
         source_path=str(source_path),
         eval_type_distribution={"single_chunk": 1.0},
         question_style_distribution={"original": 1.0},

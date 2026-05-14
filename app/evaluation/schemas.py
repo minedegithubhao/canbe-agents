@@ -39,7 +39,6 @@ def validate_distribution(
 class EvalSetGenerateRequest(BaseModel):
     name: str = "jd_help_eval_v1"
     total_count: int = Field(default=100, ge=1, le=1000)
-    seed: int = 20260513
     source_path: str = "exports/jd_help_faq.cleaned.jsonl"
     eval_type_distribution: dict[str, float] = Field(default_factory=lambda: {"single_chunk": 0.7, "multi_chunk": 0.3})
     question_style_distribution: dict[str, float] = Field(

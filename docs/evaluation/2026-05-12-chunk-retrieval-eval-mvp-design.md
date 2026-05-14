@@ -220,7 +220,7 @@ Eval set 只保存来源身份和生成元数据。
 | `description` | 说明这个评估集为什么存在。 |
 | `source_path` | MVP 阶段的来源文件路径。 |
 | `source_hash` | 生成评估集时的来源文件 hash，用于运行前实时校验。 |
-| `config` | 生成配置，例如总数、分布、seed。 |
+| `config` | 生成配置，例如总数和分布。 |
 | `summary.total` | 评估集案例总数。 |
 | `created_at` | 排序和审计。 |
 | `created_by` | 审计字段，默认 `admin`。 |

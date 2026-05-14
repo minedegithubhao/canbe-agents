@@ -50,7 +50,6 @@
   "source_hash": "sha256...",
   "config": {
     "total_count": 100,
-    "seed": 20260513,
     "eval_type_distribution": {
       "single_chunk": 0.7,
       "multi_chunk": 0.3
@@ -255,7 +254,6 @@ Request:
 {
   "name": "jd_help_eval_v1",
   "total_count": 100,
-  "seed": 20260513,
   "source_path": "exports/jd_help_faq.cleaned.jsonl",
   "eval_type_distribution": {
     "single_chunk": 0.7,
@@ -466,7 +464,6 @@ Response:
 - 新增 `EvalSetGenerateRequest`：
   - `name`
   - `total_count`
-  - `seed`
   - `source_path`
   - `eval_type_distribution`
   - `question_style_distribution`
@@ -519,7 +516,7 @@ Response:
 
 - `single_chunk` case 的 `expected_retrieved_chunk_ids` 长度为 1。
 - `multi_chunk` case 的 `expected_retrieved_chunk_ids` 长度大于 1。
-- 生成数量、分布比例、seed 可复现。
+- 生成数量和分布比例校验通过。
 - 生成的中文内容不出现 mojibake。
 
 ### Task 3：新增指标计算模块

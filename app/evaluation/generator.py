@@ -5,6 +5,7 @@ import json
 import random
 from dataclasses import dataclass
 from pathlib import Path
+from uuid import uuid4
 
 from app.evaluation.schemas import EvalCase, EvalSetGenerateRequest, GeneratedEvalSet, ReferenceContext
 from app.evaluation.text_repair import repair_text
@@ -71,7 +72,7 @@ class EvalCaseGenerator:
         chunks = self._eligible_chunks(load_source_chunks(source_path))
         if not chunks:
             raise ValueError("source_path does not contain eligible chunks")
-        rng = random.Random(request.seed)
+        rng = random.Random()
         eval_types = expand_distribution(request.eval_type_distribution, request.total_count)
         question_styles = expand_distribution(request.question_style_distribution, request.total_count)
         difficulties = expand_distribution(request.difficulty_distribution, request.total_count)
@@ -93,7 +94,7 @@ class EvalCaseGenerator:
                 )
             )
         return GeneratedEvalSet(
-            eval_set_id=f"eval_{request.seed}",
+            eval_set_id=f"eval_{uuid4().hex}",
             name=request.name,
             source_path=str(source_path),
             source_hash=source_file_hash(source_path),
